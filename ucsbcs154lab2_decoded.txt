@@ -1,0 +1,61 @@
+# python code translated to mips
+
+    .data
+sample_instructions: 
+    .word 287965187   # Instruction 1
+    .word 201326593   # Instruction 2
+    .word 2381053956  # Instruction 3
+    .word 6301728     # Instruction 4
+
+    .text
+    .globl main
+
+main:
+    # Initialize registers
+    li $t0, 0               # Counter (address index) -> $t0 = 0
+
+decode_loop:
+    # Load instruction from memory
+    la $t1, sample_instructions  # Base address of sample_instructions -> $t1
+    sll $t2, $t0, 2         # Multiply counter by 4 (word address) -> $t2 = $t0 * 4
+    add $t3, $t1, $t2       # Address of current instruction -> $t3 = $t1 + $t2
+    lw $t4, 0($t3)          # Load instruction -> $t4 = mem[$t3]
+
+    # Decode instruction fields
+    andi $t5, $t4, 0xFC000000   # Opcode (bits 31-26)
+    srl $t5, $t5, 26            # Shift right by 26 -> $t5 = opcode
+
+    andi $t6, $t4, 0x03E00000   # RS (bits 25-21)
+    srl $t6, $t6, 21            # Shift right by 21 -> $t6 = rs
+
+    andi $t7, $t4, 0x001F0000   # RT (bits 20-16)
+    srl $t7, $t7, 16            # Shift right by 16 -> $t7 = rt
+
+    andi $t8, $t4, 0x0000F800   # RD (bits 15-11)
+    srl $t8, $t8, 11            # Shift right by 11 -> $t8 = rd
+
+    andi $t9, $t4, 0x000007C0   # SH (bits 10-6)
+    srl $t9, $t9, 6             # Shift right by 6 -> $t9 = shamt
+
+    andi $s0, $t4, 0x0000003F   # FUNC (bits 5-0)
+    # No shift needed -> $s0 = func
+
+    andi $s1, $t4, 0x0000FFFF   # IMMEDIATE (bits 15-0)
+    # No shift needed -> $s1 = imm
+
+    andi $s2, $t4, 0x03FFFFFF   # ADDRESS (bits 25-0)
+    # No shift needed -> $s2 = addr
+
+    # Print instruction fields (optional, simulate a display or debug mode)
+    # For real systems, implement printing or memory storage for decoded fields.
+
+    # Increment counter
+    addi $t0, $t0, 1            # Increment counter by 1
+
+    # Loop until all 4 instructions are decoded
+    li $t3, 4                   # Total instructions = 4
+    bne $t0, $t3, decode_loop   # If counter != 4, continue decoding
+
+    # End program
+    li $v0, 10                  # Exit syscall
+    syscall
